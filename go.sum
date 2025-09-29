@@ -1,7 +1,2 @@
-github.com/Techbinator/go-table-image v0.0.0-20190913132030-9b3a8fdf94e8 h1:eihFBARYJJ7XnLjjG+zzDufWPzejJCe0i0xtB7jDWNQ=
-github.com/Techbinator/go-table-image v0.0.0-20190913132030-9b3a8fdf94e8/go.mod h1:ZCvSf0DjqEG+TPhkLnJKiBeuMvjOm6hiBlP6pf30WxM=
 github.com/atotto/clipboard v0.1.4 h1:EH0zSVneZPSuFR11BlR9YppQTVDbh5+16AmcJi4g1z4=
 github.com/atotto/clipboard v0.1.4/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
-golang.org/x/image v0.0.0-20190802002840-cff245a6509b h1:+qEpEAPhDZ1o0x3tHzZTQDArnOixOzGD9HUJfcg0mb4=
-golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
-golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
