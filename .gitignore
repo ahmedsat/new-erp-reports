@@ -1,0 +1,6 @@
+
+test.sh 
+*.json
+env.go
+
+logs/*
