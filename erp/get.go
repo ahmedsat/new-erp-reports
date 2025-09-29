@@ -12,7 +12,7 @@ import (
 )
 
 func Get[T any](path string, filters utils.Filters, fields utils.List) (result []T, err error) {
-	url, err := url.JoinPath(os.Getenv("BASE_URL"), path)
+	url, err := url.JoinPath(os.Getenv("ERP_BASE_URL"), path)
 	if err != nil {
 		err = errors.Join(err, fmt.Errorf("%s : failed to join url", utils.WhereAmI()))
 		return
@@ -24,7 +24,7 @@ func Get[T any](path string, filters utils.Filters, fields utils.List) (result [
 		return
 	}
 
-	req.Header.Add("Authorization", fmt.Sprintf("token %s", os.Getenv("AUTH_TOKEN")))
+	req.Header.Add("Authorization", fmt.Sprintf("token %s", os.Getenv("ERP_AUTH_TOKEN")))
 
 	q := req.URL.Query()
 	q.Add("limit", "0")
