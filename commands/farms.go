@@ -7,6 +7,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/ahmedsat/erp-reports-cli/erp"
 	"github.com/ahmedsat/erp-reports-cli/utils"
@@ -27,11 +28,13 @@ func (f *FarmsOptions) AddFlags(cmd *flag.FlagSet) {
 
 var validFarmsFields = []string{
 	"arabic_name",
+	"name",
 	"region",
 	"total_farmers",
 	"farm_area__feddan",
 	"farm_id",
 	"farm_application",
+	"creation_date",
 }
 
 var validFarmApplicationsFields = []string{
@@ -51,6 +54,8 @@ func tryCorrectField(field string) string {
 		return "farm_id"
 	case "area":
 		return "farm_area__feddan"
+	case "total":
+		return "total_farmers"
 	case "application":
 		return "farm_application"
 	default:
@@ -114,14 +119,19 @@ func (f FarmApplication) GetField(field string) string {
 }
 
 type Farm struct {
-	Name         string  `json:"arabic_name"`
-	Region       string  `json:"region"`
-	TotalFarmers int     `json:"total_farmers"`
-	Area         float64 `json:"farm_area__feddan"`
-	Code         string  `json:"farm_id"`
-	Application  string  `json:"farm_application"`
+	Name            string  `json:"name"`
+	ArabicName      string  `json:"arabic_name"`
+	Region          string  `json:"region"`
+	TotalFarmers    int     `json:"total_farmers"`
+	Area            float64 `json:"farm_area__feddan"`
+	Code            string  `json:"farm_id"`
+	Application     string  `json:"farm_application"`
+	CreationDateStr string  `json:"creation_date"`
 
-	FarmApplication `json:"-"`
+	FarmApplication FarmApplication `json:"-"`
+
+	// parsed
+	CreationDate time.Time `json:"-"`
 }
 
 func (f Farm) GetField(field string) string {
@@ -132,6 +142,8 @@ func (f Farm) GetField(field string) string {
 
 	switch field {
 	case "arabic_name":
+		return f.ArabicName
+	case "name":
 		return f.Name
 	case "region":
 		return f.Region
@@ -143,9 +155,11 @@ func (f Farm) GetField(field string) string {
 		return f.Code
 	case "farm_application":
 		return f.Application
+	case "creation_date":
+		return f.CreationDate.Format("01-02-2006")
 	default:
 		fmt.Fprintf(os.Stderr, "%s : invalid field %s\n", utils.WhereAmI(), field)
-		return ""
+		return "UNKNOWN: " + field
 	}
 }
 
@@ -190,6 +204,7 @@ func Farms(opt FarmsOptions) (err error) {
 	t.SetHeader(opt.Fields)
 
 	for _, farm := range farms {
+		farm.CreationDate, err = time.Parse("2006-01-02 15:04:05", farm.CreationDateStr)
 		var row []string
 		for _, field := range opt.Fields {
 			row = append(row, farm.GetField(field))
