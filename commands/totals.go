@@ -56,21 +56,21 @@ func Totals(opt TotalsOptions) (err error) {
 
 	t := utils.TableBase{}
 
-	t.SetHeader([]string{"region", "total_farmers", "count of farms", "area"})
+	t.SetHeader("region", "total_farmers", "count of farms", "area")
 	for k, region := range regions {
 		if k == "total" {
 			continue
 		}
 
-		t.AppendRow([]string{
+		t.AppendRow(
 			k,
 			fmt.Sprintf("%d", region.totalFarmers),
 			fmt.Sprintf("%d", region.count),
 			fmt.Sprintf("%.2f", region.area),
-		})
+		)
 	}
 
-	t.AppendRow([]string{"total", fmt.Sprintf("%d", regions["total"].totalFarmers), fmt.Sprintf("%d", regions["total"].count), fmt.Sprintf("%.2f", regions["total"].area)})
+	t.AppendRow("total", fmt.Sprintf("%d", regions["total"].totalFarmers), fmt.Sprintf("%d", regions["total"].count), fmt.Sprintf("%.2f", regions["total"].area))
 
 	data := opt.TablePrinter(&t)
 	opt.Print(data)

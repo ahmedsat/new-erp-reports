@@ -201,7 +201,7 @@ func Farms(opt FarmsOptions) (err error) {
 	}
 
 	t := utils.TableBase{}
-	t.SetHeader(opt.Fields)
+	t.SetHeader(opt.Fields...)
 
 	for _, farm := range farms {
 		farm.CreationDate, err = time.Parse("2006-01-02 15:04:05", farm.CreationDateStr)
@@ -209,7 +209,7 @@ func Farms(opt FarmsOptions) (err error) {
 		for _, field := range opt.Fields {
 			row = append(row, farm.GetField(field))
 		}
-		t.AppendRow(row)
+		t.AppendRow(row...)
 	}
 
 	data := opt.TablePrinter(&t)

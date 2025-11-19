@@ -129,3 +129,17 @@ func DoRequest(req *http.Request) (resp *http.Response, err error) {
 
 	return
 }
+
+func Get(path string) (resp *http.Response, err error) {
+
+	url, err := url.JoinPath(os.Getenv("ERP_BASE_URL"), path)
+	if err != nil {
+		return
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return
+	}
+	return DoRequest(req)
+}

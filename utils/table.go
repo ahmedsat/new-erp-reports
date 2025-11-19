@@ -7,9 +7,9 @@ import (
 type Table interface {
 	GetHeader() []string
 	GetRows() [][]string
-	SetHeader(header []string)
-	AppendRow(row []string)
-	AppendRows(rows [][]string)
+	SetHeader(header ...string)
+	AppendRow(row ...string)
+	AppendRows(rows ...[]string)
 }
 
 type TablePrinter func(Table) string
@@ -27,15 +27,15 @@ func (t *TableBase) GetRows() [][]string {
 	return t.Rows
 }
 
-func (t *TableBase) SetHeader(header []string) {
+func (t *TableBase) SetHeader(header ...string) {
 	t.Header = header
 }
 
-func (t *TableBase) AppendRow(row []string) {
+func (t *TableBase) AppendRow(row ...string) {
 	t.Rows = append(t.Rows, row)
 }
 
-func (t *TableBase) AppendRows(rows [][]string) {
+func (t *TableBase) AppendRows(rows ...[]string) {
 	t.Rows = append(t.Rows, rows...)
 }
 
