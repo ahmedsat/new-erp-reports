@@ -1,3 +1,5 @@
+//go:build !release
+
 package utils
 
 import (
@@ -18,13 +20,6 @@ func HandelErr(err error) {
 		}
 		os.Exit(1)
 	}
-}
-
-func TODO(format string, args ...interface{}) {
-	_, file, line, _ := runtime.Caller(1)
-	fmt.Fprintf(os.Stderr, "%s:%d: ", relativePath(file), line)
-	fmt.Fprintf(os.Stderr, "TODO: "+format+"\n", args...)
-	os.Exit(1)
 }
 
 func relativePath(path string) string {

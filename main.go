@@ -21,6 +21,11 @@ func usage() {
 
 func main() {
 
+	err := utils.Init()
+	if err != nil {
+		utils.HandelErr(err)
+	}
+
 	if len(os.Args) < 2 {
 		usage()
 		os.Exit(1)
