@@ -118,13 +118,12 @@ func SaveHttpResponse(resp http.Response) {
 func DoRequest(req *http.Request) (resp *http.Response, err error) {
 	resp, err = client.Do(req)
 	if err != nil {
-		err = errors.Join(err, fmt.Errorf("%s : failed to send request", WhereAmI()))
 		return
 	}
 
 	if resp.StatusCode != 200 {
 		SaveHttpResponse(*resp)
-		err = errors.Join(fmt.Errorf("http error: %d", resp.StatusCode), fmt.Errorf("%s : failed to get response", WhereAmI()))
+		err = errors.Join(fmt.Errorf("http error: %d", resp.StatusCode), errors.New("failed to get response"))
 		return
 	}
 

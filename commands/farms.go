@@ -66,11 +66,11 @@ func tryCorrectField(field string) string {
 func (f *FarmsOptions) Validate() (err error) {
 	err = f.GlobalOptions.Validate()
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to validate options", utils.WhereAmI()))
+		return
 	}
 
 	if len(f.Fields) == 0 {
-		return fmt.Errorf("%s : no fields set", utils.WhereAmI())
+		return fmt.Errorf("no fields set in --fields\n available fields are %v", slices.Concat(validFarmsFields, validFarmApplicationsFields))
 	}
 
 	for i := range f.Fields {
@@ -81,20 +81,20 @@ func (f *FarmsOptions) Validate() (err error) {
 			withoutPrefix := after
 			// check if the field is valid
 			if !slices.Contains(validFarmApplicationsFields, withoutPrefix) {
-				return fmt.Errorf("%s : invalid field a_%s", utils.WhereAmI(), withoutPrefix)
+				return fmt.Errorf("invalid field a_%s", withoutPrefix)
 			}
 			f.FarmApplicationsFields = append(f.FarmApplicationsFields, withoutPrefix)
 		} else {
 			// check if the field is valid
 			if !slices.Contains(validFarmsFields, f.Fields[i]) {
-				return fmt.Errorf("%s : invalid field %s", utils.WhereAmI(), f.Fields[i])
+				return fmt.Errorf("invalid field %s", f.Fields[i])
 			}
 			f.FarmFields = append(f.FarmFields, f.Fields[i])
 		}
 	}
 
 	if len(f.FarmFields) == 0 {
-		return fmt.Errorf("%s : no farm fields set", utils.WhereAmI())
+		return errors.New("no farm fields set")
 	}
 
 	return
@@ -113,7 +113,7 @@ func (f FarmApplication) GetField(field string) string {
 	case "engineer_name":
 		return f.Engineer
 	default:
-		fmt.Fprintf(os.Stderr, "%s : invalid field %s\n", utils.WhereAmI(), field)
+		fmt.Fprintf(os.Stderr, "invalid field %s\n", field)
 		return ""
 	}
 }
@@ -158,7 +158,7 @@ func (f Farm) GetField(field string) string {
 	case "creation_date":
 		return f.CreationDate.Format("01-02-2006")
 	default:
-		fmt.Fprintf(os.Stderr, "%s : invalid field %s\n", utils.WhereAmI(), field)
+		fmt.Fprintf(os.Stderr, "invalid field %s\n", field)
 		return "UNKNOWN: " + field
 	}
 }
@@ -167,7 +167,7 @@ func Farms(opt FarmsOptions) (err error) {
 
 	err = opt.Validate()
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to validate options", utils.WhereAmI()))
+		return
 	}
 
 	farms, err := erp.GetFarms[Farm](erp.FarmsOptions{
@@ -180,7 +180,7 @@ func Farms(opt FarmsOptions) (err error) {
 		IncludeCanceled: opt.IncludeCanceled,
 	})
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to get farms", utils.WhereAmI()))
+		return
 	}
 
 	var farmApplications = []FarmApplication{}
@@ -190,7 +190,7 @@ func Farms(opt FarmsOptions) (err error) {
 			Fields: append(opt.FarmApplicationsFields, "name"),
 		})
 		if err != nil {
-			return errors.Join(err, fmt.Errorf("%s : failed to get farm applications", utils.WhereAmI()))
+			return
 		}
 
 		for i := range farms {

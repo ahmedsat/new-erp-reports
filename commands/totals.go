@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/ahmedsat/erp-reports-cli/erp"
@@ -16,7 +15,7 @@ func Totals(opt TotalsOptions) (err error) {
 
 	err = opt.Validate()
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to validate options", utils.WhereAmI()))
+		return
 	}
 
 	type Farm struct {
@@ -33,7 +32,7 @@ func Totals(opt TotalsOptions) (err error) {
 		IncludeCanceled: opt.IncludeCanceled,
 	})
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to get farms", utils.WhereAmI()))
+		return
 	}
 
 	regions := make(map[string]struct {

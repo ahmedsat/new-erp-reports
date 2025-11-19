@@ -14,7 +14,3 @@ func HandelErr(err error) {
 		os.Exit(1)
 	}
 }
-
-func WhereAmI() string {
-	return ""
-}

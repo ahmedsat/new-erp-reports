@@ -1,11 +1,8 @@
 package commands
 
 import (
-	"errors"
 	"flag"
 	"fmt"
-
-	"github.com/ahmedsat/erp-reports-cli/utils"
 )
 
 type TrainingOptions struct {
@@ -20,7 +17,7 @@ func (t *TrainingOptions) AddFlags(cmd *flag.FlagSet) {
 func (t *TrainingOptions) Validate() (err error) {
 	err = t.GlobalOptions.Validate()
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to validate options", utils.WhereAmI()))
+		return
 	}
 
 	// ? this is a placeholder
@@ -31,7 +28,7 @@ func (t *TrainingOptions) Validate() (err error) {
 func Training(opt TrainingOptions) (err error) {
 	err = opt.Validate()
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to validate options", utils.WhereAmI()))
+		return
 	}
 
 	fmt.Println("Training")

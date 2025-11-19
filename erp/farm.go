@@ -1,8 +1,6 @@
 package erp
 
 import (
-	"errors"
-	"fmt"
 	"time"
 
 	"github.com/ahmedsat/erp-reports-cli/utils"
@@ -30,7 +28,6 @@ func GetFarms[T any](opt FarmsOptions) (result []T, err error) {
 
 	result, err = Get[T]("/api/resource/Farm", filters, opt.Fields)
 	if err != nil {
-		err = errors.Join(err, fmt.Errorf("%s : failed to prepare request", utils.WhereAmI()))
 		return
 	}
 

@@ -11,97 +11,134 @@ import (
 	"github.com/atotto/clipboard"
 )
 
-type GlobalOptions struct {
-	FromStr         string `json:"from"`
-	ToStr           string `json:"to"`
-	DateLayout      string `json:"date_layout"`
-	Format          string `json:"format"`
-	Copy            bool   `json:"copy"`
-	OutputFile      string `json:"output"`
-	IncludeCanceled bool   `json:"include_canceled"`
+type Dates struct {
+	FromStr    string `json:"from"`
+	ToStr      string `json:"to"`
+	DateLayout string `json:"date_layout"`
 
-	// parsed
-	From         time.Time          `json:"-"`
-	To           time.Time          `json:"-"`
-	TablePrinter utils.TablePrinter `json:"-"`
+	From time.Time `json:"-"`
+	To   time.Time `json:"-"`
 }
 
-func (g *GlobalOptions) AddFlags(cmd *flag.FlagSet) {
-	cmd.StringVar(&g.FromStr, "from", "1-1-2022", "Date part of ISO")
-	cmd.StringVar(&g.ToStr, "to", time.Now().Format("2-1-2006"), "Date part of ISO")
-	cmd.StringVar(&g.DateLayout, "date-layout", "2-1-2006", "Date layout")
-	cmd.StringVar(&g.Format, "format", "csv", "Format of output [csv, tsv]")
-	cmd.BoolVar(&g.Copy, "copy", false, "Copy to clipboard")
-	cmd.StringVar(&g.OutputFile, "output", "", "Output file")
-	cmd.BoolVar(&g.IncludeCanceled, "include-canceled", false, "Include canceled farms")
+func (d *Dates) AddFlags(cmd *flag.FlagSet) {
+	cmd.StringVar(&d.FromStr, "from", "1-1-2022", "Date part of ISO")
+	cmd.StringVar(&d.ToStr, "to", time.Now().Format("2-1-2006"), "Date part of ISO")
+	cmd.StringVar(&d.DateLayout, "date-layout", "2-1-2006", "Date layout")
 }
 
-func (g *GlobalOptions) Validate() (err error) {
-	if g.DateLayout == "" {
-		return fmt.Errorf("%s : -date-layout not set", utils.WhereAmI())
+func (d *Dates) Validate() (err error) {
+	if d.DateLayout == "" {
+		return errors.New("-date-layout not set")
 	}
 
 	// check if the layout is valid
 	// bug: this does not check the layout
-	_, err = time.Parse(g.DateLayout, "2-1-2006")
+	_, err = time.Parse(d.DateLayout, "2-1-2006")
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : invalid date layout", utils.WhereAmI()))
+		return
 	}
 
-	if g.FromStr == "" {
-		return fmt.Errorf("%s : -from not set", utils.WhereAmI())
+	if d.FromStr == "" {
+		return errors.New("-from not set")
 	}
 
-	if g.ToStr == "" {
-		return fmt.Errorf("%s : -to not set", utils.WhereAmI())
+	if d.ToStr == "" {
+		return errors.New("-to not set")
 	}
 
-	g.From, err = time.Parse(g.DateLayout, g.FromStr)
+	d.From, err = time.Parse(d.DateLayout, d.FromStr)
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to parse from", utils.WhereAmI()))
+		return
 	}
 
-	g.To, err = time.Parse(g.DateLayout, g.ToStr)
+	d.To, err = time.Parse(d.DateLayout, d.ToStr)
 	if err != nil {
-		return errors.Join(err, fmt.Errorf("%s : failed to parse to", utils.WhereAmI()))
+		return
 	}
 
-	if g.From.After(g.To) {
-		return fmt.Errorf("%s : -from is after -to", utils.WhereAmI())
+	if d.From.After(d.To) {
+		return errors.New("-from is after -to")
 	}
 
-	switch g.Format {
+	return
+}
+
+type Output struct {
+	Format     string `json:"format"`
+	Copy       bool   `json:"copy"`
+	OutputFile string `json:"output"`
+
+	TablePrinter utils.TablePrinter `json:"-"`
+}
+
+func (o *Output) AddFlags(cmd *flag.FlagSet) {
+	cmd.StringVar(&o.Format, "format", "csv", "Format of output [csv, tsv]")
+	cmd.BoolVar(&o.Copy, "copy", false, "Copy to clipboard")
+	cmd.StringVar(&o.OutputFile, "output", "", "Output file")
+}
+
+func (o *Output) Validate() (err error) {
+	switch o.Format {
 	case "csv":
-		g.TablePrinter = utils.TablePrinterCsv
+		o.TablePrinter = utils.TablePrinterCsv
 	case "tsv":
-		g.TablePrinter = utils.TablePrinterTsv
+		o.TablePrinter = utils.TablePrinterTsv
 	default:
-		g.TablePrinter = utils.TablePrinterCsv
-		fmt.Printf("unknown format: %s defaulting to csv\n", g.Format)
+		o.TablePrinter = utils.TablePrinterCsv
+		fmt.Printf("unknown format: %s defaulting to csv\n", o.Format)
 	}
 
 	return nil
 }
 
-func (g *GlobalOptions) Print(data string) (err error) {
+func (o *Output) Print(data string) (err error) {
 
-	if g.Copy {
+	if o.Copy {
 		err = clipboard.WriteAll(data)
 		if err != nil {
-			return errors.Join(err, fmt.Errorf("%s : failed to copy to clipboard", utils.WhereAmI()))
+			return
 		}
 	}
 
-	if g.OutputFile != "" {
-		err = os.WriteFile(g.OutputFile, []byte(data), 0644)
+	if o.OutputFile != "" {
+		err = os.WriteFile(o.OutputFile, []byte(data), 0644)
 		if err != nil {
-			return errors.Join(err, fmt.Errorf("%s : failed to write file", utils.WhereAmI()))
+			return
 		}
 	}
 
-	if g.OutputFile == "" && !g.Copy {
+	if o.OutputFile == "" && !o.Copy {
 		fmt.Println(data)
 	}
 
 	return
+}
+
+type GlobalOptions struct {
+	Dates
+	Output
+
+	IncludeCanceled bool `json:"include_canceled"`
+}
+
+func (g *GlobalOptions) AddFlags(cmd *flag.FlagSet) {
+	g.Dates.AddFlags(cmd)
+	g.Output.AddFlags(cmd)
+
+	cmd.BoolVar(&g.IncludeCanceled, "include-canceled", false, "Include canceled farms")
+}
+
+func (g *GlobalOptions) Validate() (err error) {
+
+	err = g.Dates.Validate()
+	if err != nil {
+		return
+	}
+
+	err = g.Output.Validate()
+	if err != nil {
+		return
+	}
+
+	return nil
 }

@@ -2,7 +2,6 @@ package erp
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -14,13 +13,11 @@ import (
 func Get[T any](path string, filters utils.Filters, fields utils.List) (result []T, err error) {
 	url, err := url.JoinPath(os.Getenv("ERP_BASE_URL"), path)
 	if err != nil {
-		err = errors.Join(err, fmt.Errorf("%s : failed to join url", utils.WhereAmI()))
 		return
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		err = errors.Join(err, fmt.Errorf("%s : failed to create request", utils.WhereAmI()))
 		return
 	}
 
@@ -42,7 +39,6 @@ func Get[T any](path string, filters utils.Filters, fields utils.List) (result [
 
 	resp, err := utils.DoRequest(req)
 	if err != nil {
-		err = errors.Join(err, fmt.Errorf("%s : failed to send request", utils.WhereAmI()))
 		return
 	}
 
@@ -56,7 +52,6 @@ func Get[T any](path string, filters utils.Filters, fields utils.List) (result [
 
 	err = decoder.Decode(&response)
 	if err != nil {
-		err = errors.Join(err, fmt.Errorf("%s : failed to decode response", utils.WhereAmI()))
 		return
 	}
 

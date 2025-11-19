@@ -58,6 +58,18 @@ func main() {
 
 		utils.HandelErr(commands.Training(opt))
 
+	case "salary":
+		cmd := flag.NewFlagSet("salary", flag.ExitOnError)
+		opt := commands.SalaryOptions{}
+		opt.AddFlags(cmd)
+
+		utils.HandelErr(cmd.Parse(os.Args[2:]))
+
+		utils.HandelErr(commands.Salary(opt))
+
+	case "help":
+		usage()
+
 	default:
 		usage()
 	}

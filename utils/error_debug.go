@@ -29,8 +29,3 @@ func relativePath(path string) string {
 	HandelErr(err)
 	return rel
 }
-
-func WhereAmI() string {
-	_, file, line, _ := runtime.Caller(1)
-	return fmt.Sprintf("%s:%d", relativePath(file), line)
-}
