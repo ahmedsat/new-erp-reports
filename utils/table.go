@@ -42,8 +42,20 @@ func (t *TableBase) AppendRows(rows ...[]string) {
 func TablePrinterCsv(t Table) string {
 
 	sb := strings.Builder{}
+
+	UpdateF(
+		t.GetHeader(),
+		TruePredicate[string](),
+		func(s string) string { return "\"" + s + "\"" },
+	)
+
 	sb.WriteString(strings.Join(t.GetHeader(), ",") + "\n")
 	for _, row := range t.GetRows() {
+		UpdateF(
+			row,
+			TruePredicate[string](),
+			func(s string) string { return "\"" + s + "\"" },
+		)
 		sb.WriteString(strings.Join(row, ",") + "\n")
 	}
 
@@ -56,9 +68,20 @@ func TablePrinterCsv(t Table) string {
 }
 func TablePrinterTsv(t Table) string {
 	sb := strings.Builder{}
+	UpdateF(
+		t.GetHeader(),
+		TruePredicate[string](),
+		func(s string) string { return "\"" + s + "\"" },
+	)
 	sb.WriteString(strings.Join(t.GetHeader(), "\t") + "\n")
 	for _, row := range t.GetRows() {
+		UpdateF(
+			row,
+			TruePredicate[string](),
+			func(s string) string { return "\"" + s + "\"" },
+		)
 		sb.WriteString(strings.Join(row, "\t") + "\n")
 	}
 	return sb.String()
+
 }
