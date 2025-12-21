@@ -9,7 +9,7 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/paulmach/orb v0.12.0 // indirect
+	github.com/paulsmith/gogeos v0.1.2 // indirect
 	golang.org/x/net v0.47.0 // indirect
 )
-
-replace tableimage => github.com/Techbinator/go-table-image v0.0.0-20190913132030-9b3a8fdf94e8
