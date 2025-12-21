@@ -9,7 +9,7 @@ import (
 	"github.com/ahmedsat/erp-reports-cli/utils"
 )
 
-var subcommands = []string{"totals", "farms", "training"}
+var subcommands = []string{"totals", "farms", "salary", "training", "map"}
 
 func usage() {
 	fmt.Printf("Usage: %s subcommand [options]\n", os.Args[0])
@@ -66,6 +66,9 @@ func main() {
 		utils.HandelErr(cmd.Parse(os.Args[2:]))
 
 		utils.HandelErr(commands.Salary(opt))
+
+	case "map":
+		utils.HandelErr(commands.Map(os.Args[2:]))
 
 	case "help":
 		usage()
