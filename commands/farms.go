@@ -27,19 +27,23 @@ func (f *FarmsOptions) AddFlags(cmd *flag.FlagSet) {
 }
 
 var validFarmsFields = []string{
-	"arabic_name",
+	"all",
+	"farm_id",
 	"name",
+	"arabic_name",
 	"region",
 	"total_farmers",
 	"farm_area__feddan",
-	"farm_id",
 	"farm_application",
 	"creation_date",
+	"latitude",
+	"longitude",
 }
 
 var validFarmApplicationsFields = []string{
 	"name",
 	"engineer_name",
+	"user_name",
 }
 
 func tryCorrectField(field string) string {
@@ -58,6 +62,12 @@ func tryCorrectField(field string) string {
 		return "total_farmers"
 	case "application":
 		return "farm_application"
+	case "date":
+		return "creation_date"
+	case "lat":
+		return "latitude"
+	case "lng", "long":
+		return "longitude"
 	default:
 		return field
 	}
@@ -74,6 +84,18 @@ func (f *FarmsOptions) Validate() (err error) {
 	}
 
 	for i := range f.Fields {
+
+		if f.Fields[i] == "all" {
+			f.FarmFields = validFarmsFields[1:]
+			f.FarmApplicationsFields = validFarmApplicationsFields
+			f.Fields = append(f.FarmFields, func(in []string) (out []string) {
+				for _, f := range in {
+					out = append(out, strings.Join([]string{"a_", f}, ""))
+				}
+				return
+			}(f.FarmApplicationsFields)...)
+			break
+		}
 
 		f.Fields[i] = tryCorrectField(f.Fields[i])
 
@@ -103,6 +125,7 @@ func (f *FarmsOptions) Validate() (err error) {
 type FarmApplication struct {
 	Name     string `json:"name"`
 	Engineer string `json:"engineer_name"`
+	UserName string `json:"user_name"`
 }
 
 func (f FarmApplication) GetField(field string) string {
@@ -112,6 +135,8 @@ func (f FarmApplication) GetField(field string) string {
 		return f.Name
 	case "engineer_name":
 		return f.Engineer
+	case "user_name":
+		return f.UserName
 	default:
 		fmt.Fprintf(os.Stderr, "invalid field %s\n", field)
 		return ""
@@ -127,6 +152,9 @@ type Farm struct {
 	Code            string  `json:"farm_id"`
 	Application     string  `json:"farm_application"`
 	CreationDateStr string  `json:"creation_date"`
+
+	Latitude  string `json:"latitude"`
+	Longitude string `json:"longitude"`
 
 	FarmApplication FarmApplication `json:"-"`
 
@@ -157,6 +185,10 @@ func (f Farm) GetField(field string) string {
 		return f.Application
 	case "creation_date":
 		return f.CreationDate.Format("01-02-2006")
+	case "latitude":
+		return f.Latitude
+	case "longitude":
+		return f.Longitude
 	default:
 		fmt.Fprintf(os.Stderr, "invalid field %s\n", field)
 		return "UNKNOWN: " + field
@@ -185,6 +217,9 @@ func Farms(opt FarmsOptions) (err error) {
 
 	var farmApplications = []FarmApplication{}
 
+	// ! need optimization this get all applications at once
+	// ! and then search for the one we need in the loop
+	// ! but it's fine for now :D
 	if len(opt.FarmApplicationsFields) > 0 {
 		farmApplications, err = erp.GetFarmApplicants[FarmApplication](erp.FarmApplicantsOptions{
 			Fields: append(opt.FarmApplicationsFields, "name"),
@@ -204,9 +239,14 @@ func Farms(opt FarmsOptions) (err error) {
 	t.SetHeader(opt.Fields...)
 
 	for _, farm := range farms {
-		farm.CreationDate, err = time.Parse("2006-01-02 15:04:05", farm.CreationDateStr)
 		var row []string
 		for _, field := range opt.Fields {
+			if field == "creation_date" {
+				farm.CreationDate, err = time.Parse("2006-01-02 15:04:05", farm.CreationDateStr)
+				if err != nil {
+					return
+				}
+			}
 			row = append(row, farm.GetField(field))
 		}
 		t.AppendRow(row...)
