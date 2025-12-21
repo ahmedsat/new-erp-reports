@@ -12,11 +12,11 @@ import (
 func HandelErr(err error) {
 	if err != nil {
 		_, file, line, ok := runtime.Caller(1)
-		fmt.Printf("ERROR: %v\n", err)
+		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 		if ok {
-			fmt.Printf("%s:%d\n", relativePath(file), line)
+			fmt.Fprintf(os.Stderr, "%s:%d\n", relativePath(file), line)
 		} else {
-			fmt.Println("unknown")
+			fmt.Fprintln(os.Stderr, "unknown")
 		}
 		os.Exit(1)
 	}
