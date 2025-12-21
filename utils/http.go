@@ -107,23 +107,19 @@ func SaveHttpResponse(resp http.Response) {
 	_, err = io.Copy(f, resp.Body)
 	HandelErr(err)
 
-	fmt.Printf("response saved to %s\n", filePath)
+	fmt.Fprintf(os.Stderr, "request url: %s\n", resp.Request.URL)
+	fmt.Fprintf(os.Stderr, "response saved to %s\n", filePath)
 	if resp.StatusCode >= 300 && resp.StatusCode < 200 {
 		HandelErr(fmt.Errorf("http error: %d", resp.StatusCode))
 	}
 
-	fmt.Println(resp.Status)
+	fmt.Fprintln(os.Stderr, resp.Status)
+
 }
 
 func DoRequest(req *http.Request) (resp *http.Response, err error) {
 	resp, err = client.Do(req)
 	if err != nil {
-		return
-	}
-
-	if resp.StatusCode != 200 {
-		SaveHttpResponse(*resp)
-		err = errors.Join(fmt.Errorf("http error: %d", resp.StatusCode), errors.New("failed to get response"))
 		return
 	}
 
