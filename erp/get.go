@@ -2,6 +2,7 @@ package erp
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -41,8 +42,13 @@ func Get[T any](path string, filters utils.Filters, fields utils.List) (result [
 	if err != nil {
 		return
 	}
-
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		utils.SaveHttpResponse(*resp)
+		err = errors.Join(fmt.Errorf("http error: %d", resp.StatusCode), errors.New("failed to get response"))
+		return
+	}
 
 	decoder := json.NewDecoder(resp.Body)
 
