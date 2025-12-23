@@ -11,8 +11,8 @@ import (
 	"github.com/ahmedsat/erp-reports-cli/utils"
 )
 
-func Get[T any](path string, filters utils.Filters, fields utils.List) (result []T, err error) {
-	url, err := url.JoinPath(os.Getenv("ERP_BASE_URL"), path)
+func Get[T any](doctype, id string, filters utils.Filters, fields utils.List) (result []T, err error) {
+	url, err := url.JoinPath(os.Getenv("ERP_BASE_URL"), "/api/resource", doctype, id)
 	if err != nil {
 		return
 	}
@@ -34,6 +34,7 @@ func Get[T any](path string, filters utils.Filters, fields utils.List) (result [
 	if len(fields) == 0 {
 		fields = utils.List{"*"}
 	}
+	// bug: the fields are not working, we got all the fields
 	q.Add("fields", fields.String())
 
 	req.URL.RawQuery = q.Encode()
@@ -51,6 +52,20 @@ func Get[T any](path string, filters utils.Filters, fields utils.List) (result [
 	}
 
 	decoder := json.NewDecoder(resp.Body)
+
+	if id != "" {
+		var response struct {
+			Data T `json:"data"`
+		}
+
+		err = decoder.Decode(&response)
+		if err != nil {
+			return
+		}
+
+		result = []T{response.Data}
+		return
+	}
 
 	var response struct {
 		Data []T `json:"data"`

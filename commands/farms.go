@@ -122,12 +122,6 @@ func (f *FarmsOptions) Validate() (err error) {
 	return
 }
 
-type FarmApplication struct {
-	Name     string `json:"name"`
-	Engineer string `json:"engineer_name"`
-	UserName string `json:"user_name"`
-}
-
 func (f FarmApplication) GetField(field string) string {
 
 	switch field {

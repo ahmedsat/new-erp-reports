@@ -26,7 +26,7 @@ func GetFarms[T any](opt FarmsOptions) (result []T, err error) {
 		filters = append(filters, utils.NewFilter("farm_status", utils.Neq, "Cancelled"))
 	}
 
-	result, err = Get[T]("/api/resource/Farm", filters, opt.Fields)
+	result, err = Get[T]("Farm", "", filters, opt.Fields)
 	if err != nil {
 		return
 	}

@@ -11,8 +11,8 @@ import (
 	"github.com/ahmedsat/erp-reports-cli/utils"
 )
 
-func GetDoc(path string) (result []byte, err error) {
-	url, err := url.JoinPath(os.Getenv("ERP_BASE_URL"), path)
+func GetDoc(doctype, id string) (result []byte, err error) {
+	url, err := url.JoinPath(os.Getenv("ERP_BASE_URL"), "/api/resource/", doctype, id)
 	if err != nil {
 		return
 	}

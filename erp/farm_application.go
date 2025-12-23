@@ -10,7 +10,7 @@ type FarmApplicantsOptions struct {
 
 func GetFarmApplicants[T any](opt FarmApplicantsOptions) (result []T, err error) {
 
-	result, err = Get[T]("/api/resource/Farm Application", utils.Filters{}, opt.Fields)
+	result, err = Get[T]("Farm Application", "", utils.Filters{}, opt.Fields)
 	if err != nil {
 		return
 	}

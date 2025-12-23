@@ -57,7 +57,7 @@ func GetCoords(id string) ([]Coord, error) {
 		fmt.Fprintf(os.Stderr, "caching %d,%s\r", len(cordsCache), id)
 	}
 
-	res, err := erp.GetDoc("/api/resource/Map Records/" + id)
+	res, err := erp.GetDoc("Map Records", id)
 	if err != nil {
 		return nil, err
 	}
