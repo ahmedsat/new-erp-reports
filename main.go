@@ -9,7 +9,7 @@ import (
 	"github.com/ahmedsat/erp-reports-cli/utils"
 )
 
-var subcommands = []string{"totals", "farms", "salary", "training", "map"}
+var subcommands = []string{"totals", "farms", "farm-applications", "salary"}
 
 func usage() {
 	fmt.Printf("Usage: %s subcommand [options]\n", os.Args[0])
