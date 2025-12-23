@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/ahmedsat/erp-reports-cli/commands"
+	"github.com/ahmedsat/erp-reports-cli/erp"
 	"github.com/ahmedsat/erp-reports-cli/utils"
 )
 
@@ -21,10 +22,12 @@ func usage() {
 
 func main() {
 
-	err := utils.Init()
+	r, err := erp.Login()
 	if err != nil {
 		utils.HandelErr(err)
 	}
+
+	fmt.Println("Logged in as: ", r)
 
 	if len(os.Args) < 2 {
 		usage()
@@ -49,6 +52,9 @@ func main() {
 		utils.HandelErr(cmd.Parse(os.Args[2:]))
 
 		utils.HandelErr(commands.Farms(opt))
+
+	case "farm-applications":
+		utils.HandelErr(commands.FarmApplications(os.Args[2:]))
 	case "training":
 		cmd := flag.NewFlagSet("training", flag.ExitOnError)
 		opt := commands.TrainingOptions{}
