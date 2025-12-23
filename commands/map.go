@@ -21,11 +21,18 @@ func Map(args []string) (err error) {
 	case "center":
 		err = MapGetCenter(args[1])
 	case "delete":
-		res, err := erp.DeleteDoc("/api/resource/Map Records/" + args[1])
-		if err != nil {
-			return err
+
+		for i := 2; i < len(args); i++ {
+			res, err := erp.DeleteDoc("/api/resource/Map Records/" + args[i])
+			if err != nil {
+				return err
+			}
+			if res {
+				fmt.Printf("deleted %s\n", args[i])
+			} else {
+				fmt.Printf("failed to delete %s\n", args[i])
+			}
 		}
-		fmt.Println(string(res))
 	case "overlap":
 		if len(args) < 3 {
 			return fmt.Errorf("not enough arguments")

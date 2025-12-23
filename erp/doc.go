@@ -1,6 +1,7 @@
 package erp
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -44,7 +45,12 @@ func GetDoc(doctype, id string) (result []byte, err error) {
 	return
 }
 
-func DeleteDoc(path string) (result []byte, err error) {
+func DeleteDoc(path string) (result bool, err error) {
+
+	var DeleteResponse = struct {
+		Data string `json:"data"`
+	}{}
+
 	url, err := url.JoinPath(os.Getenv("ERP_BASE_URL"), path)
 	if err != nil {
 		return
@@ -70,9 +76,18 @@ func DeleteDoc(path string) (result []byte, err error) {
 		return
 	}
 
-	result, err = io.ReadAll(resp.Body)
+	err = json.NewDecoder(resp.Body).Decode(&DeleteResponse)
 	if err != nil {
 		return
 	}
+
+	result = DeleteResponse.Data == "ok"
+
+	if !result {
+		utils.SaveHttpResponse(*resp)
+		err = errors.Join(fmt.Errorf("http error: %d", resp.StatusCode), errors.New("failed to get response"))
+		return
+	}
+
 	return
 }
