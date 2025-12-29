@@ -25,12 +25,18 @@ func Totals(opt TotalsOptions) (err error) {
 		Area         float64 `json:"farm_area__feddan"`
 	}
 
-	farms, err := erp.GetFarms[Farm](erp.FarmsOptions{
-		From:            opt.From,
-		To:              opt.To,
-		Fields:          utils.List{"name", "region", "total_farmers", "farm_area__feddan"},
-		IncludeCanceled: opt.IncludeCanceled,
-	})
+	filters := utils.Filters{
+		utils.NewFilter("type", utils.Eq, "farm"),
+		utils.NewFilter("creation_date", utils.Gte, opt.From.Format("2006-01-02")),
+		// ? to is excluded, so we have to add 1 day
+		utils.NewFilter("creation_date", utils.Lte, opt.To.AddDate(0, 0, 1).Format("2006-01-02")),
+	}
+
+	if !opt.IncludeCanceled {
+		filters = append(filters, utils.NewFilter("farm_status", utils.Neq, "Cancelled"))
+	}
+
+	farms, err := erp.Get[Farm]("Farm", filters, []string{"name", "region", "total_farmers", "farm_area__feddan"})
 	if err != nil {
 		return
 	}

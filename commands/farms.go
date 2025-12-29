@@ -196,28 +196,37 @@ func Farms(opt FarmsOptions) (err error) {
 		return
 	}
 
-	farms, err := erp.GetFarms[Farm](erp.FarmsOptions{
-		From: opt.From,
-		To:   opt.To,
-		Fields: utils.Ternary(
-			len(opt.FarmApplicationsFields) > 0,
-			append(opt.FarmFields, "farm_application"),
-			opt.FarmFields),
-		IncludeCanceled: opt.IncludeCanceled,
-	})
+	// farms, err := erp.GetFarms[Farm](erp.FarmsOptions{
+	// 	From: opt.From,
+	// 	To:   opt.To,
+	// 	Fields: utils.Ternary(
+	// 		len(opt.FarmApplicationsFields) > 0,
+	// 		append(opt.FarmFields, "farm_application"),
+	// 		opt.FarmFields),
+	// 	IncludeCanceled: opt.IncludeCanceled,
+	// })
+
+	filters := utils.Filters{
+		utils.NewFilter("type", utils.Eq, "farm"),
+		utils.NewFilter("creation_date", utils.Gte, opt.From.Format("2006-01-02")),
+		// ? to is excluded, so we have to add 1 day
+		utils.NewFilter("creation_date", utils.Lte, opt.To.AddDate(0, 0, 1).Format("2006-01-02")),
+	}
+
+	if !opt.IncludeCanceled {
+		filters = append(filters, utils.NewFilter("farm_status", utils.Neq, "Cancelled"))
+	}
+
+	farms, err := erp.Get[Farm]("Farm", filters, append(opt.FarmFields, "farm_application"))
+
 	if err != nil {
 		return
 	}
 
 	var farmApplications = []FarmApplication{}
 
-	// ! need optimization this get all applications at once
-	// ! and then search for the one we need in the loop
-	// ! but it's fine for now :D
 	if len(opt.FarmApplicationsFields) > 0 {
-		farmApplications, err = erp.GetFarmApplicants[FarmApplication](erp.FarmApplicantsOptions{
-			Fields: append(opt.FarmApplicationsFields, "name"),
-		})
+		farmApplications, err = erp.Get[FarmApplication]("Farm Application", utils.Filters{}, append(opt.FarmApplicationsFields, "name"))
 		if err != nil {
 			return
 		}
