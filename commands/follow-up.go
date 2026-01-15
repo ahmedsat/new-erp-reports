@@ -263,13 +263,19 @@ func FollowUp(args []string) error {
 	}
 
 	fmt.Fprintln(os.Stderr, "Calculating rates...")
+	counter := 1
+	s := utils.NewSyncRunner(10, 0)
 	for i := range results {
-		err := results[i].Rate()
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(os.Stderr, "\rProgress [%d/%d] %.2f%%", i+1, len(results), float64(i+1)/float64(len(results))*100)
+		s.Run(func() {
+			err := results[i].Rate()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+			}
+			fmt.Fprintf(os.Stderr, "\r%d/%d (%.2f%%)", counter, len(results), float64(counter)/float64(len(results))*100)
+			counter++
+		})
 	}
+	s.Wait()
 	fmt.Fprintln(os.Stderr)
 
 	fmt.Fprintln(os.Stderr, "Sorting results...")
@@ -279,6 +285,9 @@ func FollowUp(args []string) error {
 
 	fmt.Fprintln(os.Stderr, "Printing results...")
 	for _, result := range results {
+		if !result.rated {
+			continue
+		}
 		fmt.Println(strings.Join([]string{result.Name, result.FarmCode, fmt.Sprintf("%f", result.rate), result.issue}, sep))
 	}
 
