@@ -10,7 +10,7 @@ import (
 	"github.com/ahmedsat/erp-reports-cli/utils"
 )
 
-var subcommands = []string{"totals", "farms", "farm-applications", "salary"}
+var subcommands = []string{"totals", "farms", "farm-applications", "salary", "follow-up"}
 
 func usage() {
 	fmt.Printf("Usage: %s subcommand [options]\n", os.Args[0])
@@ -27,7 +27,7 @@ func main() {
 		utils.HandelErr(err)
 	}
 
-	fmt.Println("Logged in as: ", r)
+	fmt.Fprintln(os.Stderr, "Logged in as: ", r)
 
 	if len(os.Args) < 2 {
 		usage()
@@ -75,6 +75,14 @@ func main() {
 
 	case "map":
 		utils.HandelErr(commands.Map(os.Args[2:]))
+
+	case "pgs":
+		utils.HandelErr(commands.Pgs(os.Args[2:]))
+
+	case "records":
+		utils.HandelErr(commands.Records(os.Args[2:]))
+	case "follow-up":
+		utils.HandelErr(commands.FollowUp(os.Args[2:]))
 
 	case "help":
 		usage()

@@ -3,5 +3,5 @@
 package main
 
 func init() {
-	subcommands = append(subcommands, "training", "map")
+	subcommands = append(subcommands, "training", "map", "pgs", "records")
 }

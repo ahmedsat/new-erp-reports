@@ -1,7 +1,12 @@
 
-test.sh 
+test.sh
+ 
 *.json
+*.tsv
+*.csv
+*.kml
+
 env.go
 
 logs/*
-*.tsv
+dist/

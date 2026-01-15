@@ -33,3 +33,10 @@ jobs:
           files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# how to release: 
+# 1st check last version via this command: git describe --abbrev=0 --tags
+# commit and tag version: git tag -a v1.0.0 -m "v1.0.0"
+# push: git push origin v1.0.0
+# 2nd check last version via this command: git describe --abbrev=0 --tags
+# 3rd run this workflow

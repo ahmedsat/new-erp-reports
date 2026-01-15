@@ -20,6 +20,10 @@ type FarmApplication struct {
 	LocationTables []LocationTable `json:"location_table"`
 }
 
+func (f FarmApplication) DocTypeName() string {
+	return "Farm Application"
+}
+
 func FarmApplications(args []string) (err error) {
 	if len(args) == 0 {
 		return fmt.Errorf("not enough arguments")
@@ -30,7 +34,7 @@ func FarmApplications(args []string) (err error) {
 		if len(args) < 2 {
 			return fmt.Errorf("not enough arguments")
 		}
-		app, err := erp.Get1[FarmApplication]("Farm Application", args[1])
+		app, err := erp.Get1[FarmApplication](args[1])
 		if err != nil {
 			return err
 		}
@@ -58,7 +62,7 @@ func FarmApplications(args []string) (err error) {
 
 func CreateMap(id string) (err error) {
 
-	app, err := erp.Get1[FarmApplication]("Farm Application", id)
+	app, err := erp.Get1[FarmApplication](id)
 	if err != nil {
 		return err
 	}
@@ -92,7 +96,7 @@ func CreateMap(id string) (err error) {
 
 func ValidateFarmApplication(id string) (err error) {
 
-	apps, err := erp.Get[FarmApplication]("Farm Application", utils.Filters{}, []string{"name"})
+	apps, err := erp.Get[FarmApplication](utils.Filters{}, []string{"name"})
 	if err != nil {
 		return
 	}

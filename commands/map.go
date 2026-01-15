@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	"github.com/ahmedsat/erp-reports-cli/erp"
+	"github.com/ahmedsat/erp-reports-cli/kml"
+	"github.com/ahmedsat/erp-reports-cli/types"
 	"github.com/paulsmith/gogeos/geos"
 )
 
@@ -42,11 +44,55 @@ func Map(args []string) (err error) {
 		err = MapGetOverlapAll()
 	case "area-list":
 		err = MapGetAreaAll()
+	case "kml":
+		err = MapGetKml(args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "available commands: %s\n", mapCommands)
 		err = fmt.Errorf("unknown map command: %s", args[0])
 	}
 	return
+}
+
+func MapGetKml(args []string) error {
+	maps, err := erp.Get[types.MapRecord](nil, nil)
+	if err != nil {
+		return err
+	}
+
+	MapsMap := make(map[string]types.MapRecord)
+	for i := range maps {
+		m := maps[i]
+		if m.Farm == "" {
+			continue
+		}
+
+		if MapsMap[m.Farm].Area_in_feddan < m.Area_in_feddan {
+			MapsMap[m.Farm] = m
+		}
+	}
+
+	maps = []types.MapRecord{}
+	for _, m := range MapsMap {
+		maps = append(maps, m)
+	}
+
+	bytes, err := kml.RecordsToKML(maps)
+	if err != nil {
+		return err
+	}
+
+	for _, arg := range args {
+		f, err := os.Create(arg)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		if _, err := f.Write(bytes); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type Coord struct {

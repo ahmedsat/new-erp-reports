@@ -146,15 +146,16 @@ type Farm struct {
 	Code            string  `json:"farm_id"`
 	Application     string  `json:"farm_application"`
 	CreationDateStr string  `json:"creation_date"`
-
-	Latitude  string `json:"latitude"`
-	Longitude string `json:"longitude"`
+	Latitude        string  `json:"latitude"`
+	Longitude       string  `json:"longitude"`
 
 	FarmApplication FarmApplication `json:"-"`
 
 	// parsed
 	CreationDate time.Time `json:"-"`
 }
+
+func (Farm) DocTypeName() string { return "Farm" }
 
 func (f Farm) GetField(field string) string {
 
@@ -217,7 +218,7 @@ func Farms(opt FarmsOptions) (err error) {
 		filters = append(filters, utils.NewFilter("farm_status", utils.Neq, "Cancelled"))
 	}
 
-	farms, err := erp.Get[Farm]("Farm", filters, append(opt.FarmFields, "farm_application"))
+	farms, err := erp.Get[Farm](filters, append(opt.FarmFields, "farm_application"))
 
 	if err != nil {
 		return
@@ -226,7 +227,7 @@ func Farms(opt FarmsOptions) (err error) {
 	var farmApplications = []FarmApplication{}
 
 	if len(opt.FarmApplicationsFields) > 0 {
-		farmApplications, err = erp.Get[FarmApplication]("Farm Application", utils.Filters{}, append(opt.FarmApplicationsFields, "name"))
+		farmApplications, err = erp.Get[FarmApplication](utils.Filters{}, append(opt.FarmApplicationsFields, "name"))
 		if err != nil {
 			return
 		}

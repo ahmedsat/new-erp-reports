@@ -18,13 +18,6 @@ func Totals(opt TotalsOptions) (err error) {
 		return
 	}
 
-	type Farm struct {
-		Name         string  `json:"name"`
-		Region       string  `json:"region"`
-		TotalFarmers int     `json:"total_farmers"`
-		Area         float64 `json:"farm_area__feddan"`
-	}
-
 	filters := utils.Filters{
 		utils.NewFilter("type", utils.Eq, "farm"),
 		utils.NewFilter("creation_date", utils.Gte, opt.From.Format("2006-01-02")),
@@ -36,7 +29,7 @@ func Totals(opt TotalsOptions) (err error) {
 		filters = append(filters, utils.NewFilter("farm_status", utils.Neq, "Cancelled"))
 	}
 
-	farms, err := erp.Get[Farm]("Farm", filters, []string{"name", "region", "total_farmers", "farm_area__feddan"})
+	farms, err := erp.Get[Farm](filters, []string{"name", "region", "total_farmers", "farm_area__feddan"})
 	if err != nil {
 		return
 	}
